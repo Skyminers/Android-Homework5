@@ -22,9 +22,9 @@ import com.bytedance.androidcamp.network.dou.model.Video;
 import com.bytedance.androidcamp.network.dou.util.ResourceUtils;
 import com.bytedance.androidcamp.network.lib.util.ImageHelper;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_VIDEO = 2;
     private static final String TAG = "MainActivityTAG";
     private static final String myID = "15097722150";
-    private static final String myName = "刘一辰";
+    private static final String myName = "LYC";
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private RecyclerView mRv;
     private List<Video> mVideos = new ArrayList<>();
     public Uri mSelectedImage;
@@ -190,8 +191,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"Begin to post");
         mBtn.setText("POSTING...");
         mBtn.setEnabled(false);
-        MultipartBody.Part coverImagePart = getMultipartFromUri("cover_image", mSelectedImage);
-        MultipartBody.Part videoPart = getMultipartFromUri("video", mSelectedVideo);
+        MultipartBody.Part coverImagePart;
+        MultipartBody.Part videoPart;
+        try {
+            coverImagePart = getMultipartFromUri("cover_image", mSelectedImage);
+            videoPart = getMultipartFromUri("video", mSelectedVideo);
+        }catch(Exception e){
+            Log.e(TAG,e.getMessage());
+            return ;
+        }
+        Log.d(TAG,"Get file");
         //@TODO 4下面的id和名字替换成自己的
         miniDouyinService.postVideo(myID, myName, coverImagePart, videoPart).enqueue(
                 new Callback<PostVideoResponse>() {
