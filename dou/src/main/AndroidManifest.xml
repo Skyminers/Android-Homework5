@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bytedance.androidcamp.network.dou">
 
-<!--    <uses-permission android:name="android.permission.INTERNET"/>-->
-<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> &lt;!&ndash; 如果仍然有权限问题，手动去设置里面开启权限 &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"

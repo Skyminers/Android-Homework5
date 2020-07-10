@@ -24,6 +24,8 @@ import com.bytedance.androidcamp.network.lib.util.ImageHelper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -37,7 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE = 1;
     private static final int PICK_VIDEO = 2;
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivityTAG";
+    private static final String myID = "15097722150";
+    private static final String myName = "刘一辰";
     private RecyclerView mRv;
     private List<Video> mVideos = new ArrayList<>();
     public Uri mSelectedImage;
@@ -67,11 +71,14 @@ public class MainActivity extends AppCompatActivity {
                 String s = mBtn.getText().toString();
                 if (getString(R.string.select_an_image).equals(s)) {
                     //@TODO 1填充选择图片的功能
+                    chooseImage();
                 } else if (getString(R.string.select_a_video).equals(s)) {
                     //@TODO 2填充选择视频的功能
+                    chooseVideo();
                 } else if (getString(R.string.post_it).equals(s)) {
                     if (mSelectedVideo != null && mSelectedImage != null) {
                         //@TODO 3调用上传功能
+                        postVideo();
                     } else {
                         throw new IllegalArgumentException("error data uri, mSelectedVideo = "
                                 + mSelectedVideo
@@ -132,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void chooseImage() {
+        Log.d(TAG,"Begin to choose image");
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -140,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void chooseVideo() {
+        Log.d(TAG,"Begin to choose video");
         Intent intent = new Intent();
         intent.setType("video/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -178,12 +187,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void postVideo() {
+        Log.d(TAG,"Begin to post");
         mBtn.setText("POSTING...");
         mBtn.setEnabled(false);
         MultipartBody.Part coverImagePart = getMultipartFromUri("cover_image", mSelectedImage);
         MultipartBody.Part videoPart = getMultipartFromUri("video", mSelectedVideo);
         //@TODO 4下面的id和名字替换成自己的
-        miniDouyinService.postVideo("你的id（可以是自己的手机号）", "你的名字", coverImagePart, videoPart).enqueue(
+        miniDouyinService.postVideo(myID, myName, coverImagePart, videoPart).enqueue(
                 new Callback<PostVideoResponse>() {
                     @Override
                     public void onResponse(Call<PostVideoResponse> call, Response<PostVideoResponse> response) {
@@ -210,9 +220,15 @@ public class MainActivity extends AppCompatActivity {
         miniDouyinService.getVideos().enqueue(new Callback<GetVideosResponse>() {
             @Override
             public void onResponse(Call<GetVideosResponse> call, Response<GetVideosResponse> response) {
+                Log.d(TAG,"Get response");
                 if (response.body() != null && response.body().videos != null) {
-                    mVideos = response.body().videos;
+                    List<Video> tmp = response.body().videos;
                     //@TODO  5服务端没有做去重，拿到列表后，可以在端侧根据自己的id，做列表筛选。
+                    mVideos.clear();
+                    for(Video v : tmp){
+                        if(v.studentId.equals(myID)) mVideos.add(v);
+                    }
+                    //mVideos = response.body().videos;
                     mRv.getAdapter().notifyDataSetChanged();
                 }
                 mBtnRefresh.setText(R.string.refresh_feed);
